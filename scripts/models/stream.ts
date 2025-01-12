@@ -1,4 +1,4 @@
-import { URL, Collection } from '../core'
+import { URL, Collection } from '@freearhey/core'
 import { Category, Language } from './index'
 
 type StreamProps = {
@@ -11,6 +11,7 @@ type StreamProps = {
   label?: string
   quality?: string
   userAgent?: string
+  timeshift?: string
 }
 
 export class Stream {
@@ -30,6 +31,7 @@ export class Stream {
   isNSFW: boolean
   groupTitle: string
   removed: boolean = false
+  timeshift: string
 
   constructor({
     channel,
@@ -40,7 +42,8 @@ export class Stream {
     name,
     quality,
     url,
-    userAgent
+    userAgent,
+    timeshift
   }: StreamProps) {
     this.channel = channel || ''
     this.filepath = filepath
@@ -57,6 +60,7 @@ export class Stream {
     this.languages = new Collection()
     this.isNSFW = false
     this.groupTitle = 'Undefined'
+    this.timeshift = timeshift || ''
   }
 
   normalizeURL() {
@@ -86,7 +90,7 @@ export class Stream {
   }
 
   noCategories(): boolean {
-    return this.categories.empty()
+    return this.categories.isEmpty()
   }
 
   hasCategory(category: Category): boolean {
@@ -94,7 +98,7 @@ export class Stream {
   }
 
   noLanguages(): boolean {
-    return this.languages.empty()
+    return this.languages.isEmpty()
   }
 
   hasLanguage(language: Language): boolean {
@@ -102,7 +106,7 @@ export class Stream {
   }
 
   noBroadcastArea(): boolean {
-    return this.broadcastArea.empty()
+    return this.broadcastArea.isEmpty()
   }
 
   isInternational(): boolean {
@@ -145,6 +149,7 @@ export class Stream {
     return {
       channel: this.channel,
       url: this.url,
+      timeshift: this.timeshift || null,
       http_referrer: this.httpReferrer || null,
       user_agent: this.userAgent || null
     }
@@ -152,6 +157,10 @@ export class Stream {
 
   toString(options: { public: boolean }) {
     let output = `#EXTINF:-1 tvg-id="${this.channel}"`
+
+    if (this.timeshift) {
+      output += ` tvg-shift="${this.timeshift}"`
+    }
 
     if (options.public) {
       output += ` tvg-logo="${this.logo}" group-title="${this.groupTitle}"`

@@ -1,5 +1,6 @@
+import { Logger, Storage } from '@freearhey/core'
 import { API_DIR, STREAMS_DIR } from '../../constants'
-import { Logger, PlaylistParser, Storage } from '../../core'
+import { PlaylistParser } from '../../core'
 import { Stream } from '../../models'
 
 async function main() {
@@ -12,7 +13,7 @@ async function main() {
   let streams = await parser.parse(files)
   streams = streams
     .map(data => new Stream(data))
-    .orderBy((stream: Stream) => stream.channel)
+    .orderBy([(stream: Stream) => stream.channel, (stream: Stream) => stream.timeshift])
     .map((stream: Stream) => stream.toJSON())
 
   logger.info(`found ${streams.count()} streams`)
