@@ -1,7 +1,6 @@
-import { File, PlaylistParser, Storage } from '../../core'
+import { Logger, Storage, Collection, File } from '@freearhey/core'
+import { PlaylistParser } from '../../core'
 import { Stream, Category, Channel, Language, Country, Region, Subdivision } from '../../models'
-import { Collection } from '../../core/collection'
-import { Logger } from '../../core/logger'
 import _ from 'lodash'
 import {
   CategoriesGenerator,
@@ -38,7 +37,7 @@ async function main() {
   logger.info('loading streams...')
   let streams = await loadStreams({ channels, categories, languages })
   let totalStreams = streams.count()
-  streams = streams.uniqBy((stream: Stream) => stream.channel || _.uniqueId())
+  streams = streams.uniqBy((stream: Stream) => (stream.channel || _.uniqueId()) + stream.timeshift)
   logger.info(`found ${totalStreams} streams (including ${streams.count()} unique)`)
 
   const generatorsLogger = new Logger({
@@ -66,8 +65,6 @@ async function main() {
   }).generate()
   logger.info('generating index.m3u...')
   await new IndexGenerator({ streams, logger: generatorsLogger }).generate()
-  logger.info('generating index.nsfw.m3u...')
-  await new IndexNsfwGenerator({ streams, logger: generatorsLogger }).generate()
   logger.info('generating index.category.m3u...')
   await new IndexCategoryGenerator({ streams, logger: generatorsLogger }).generate()
   logger.info('generating index.country.m3u...')
@@ -105,7 +102,15 @@ async function loadStreams({
   let streams = await parser.parse(files)
 
   streams = streams
-    .orderBy([(stream: Stream) => stream.channel, (stream: Stream) => stream.url], ['asc', 'asc'])
+    .orderBy(
+      [
+        (stream: Stream) => stream.channel,
+        (stream: Stream) => stream.timeshift,
+        (stream: Stream) => parseInt(stream.quality.replace('p', '')),
+        (stream: Stream) => stream.label
+      ],
+      ['asc', 'asc', 'desc', 'asc']
+    )
     .map((stream: Stream) => {
       const channel: Channel | undefined = groupedChannels.get(stream.channel)
 
@@ -124,7 +129,7 @@ async function loadStreams({
         if (channel.logo) stream.logo = channel.logo
       } else {
         const file = new File(stream.filepath)
-        const [_, countryCode] = file.getFilename().match(/^([a-z]{2})(_|$)/) || [null, null]
+        const [_, countryCode] = file.name().match(/^([a-z]{2})(_|$)/) || [null, null]
         const defaultBroadcastArea = countryCode ? [`c/${countryCode.toUpperCase()}`] : []
 
         stream.broadcastArea = new Collection(defaultBroadcastArea)

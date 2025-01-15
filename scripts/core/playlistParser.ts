@@ -1,6 +1,6 @@
+import { Collection, Storage } from '@freearhey/core'
 import parser from 'iptv-playlist-parser'
 import { Stream } from '../models'
-import { Collection, Storage } from './'
 import path from 'path'
 import { STREAMS_DIR } from '../constants'
 
@@ -14,7 +14,7 @@ export class PlaylistParser {
   async parse(files: string[]): Promise<Collection> {
     let streams = new Collection()
 
-    for (let filepath of files) {
+    for (const filepath of files) {
       const relativeFilepath = filepath.replace(path.normalize(STREAMS_DIR), '')
       const _streams: Collection = await this.parseFile(relativeFilepath)
       streams = streams.concat(_streams)
@@ -26,7 +26,7 @@ export class PlaylistParser {
   async parseFile(filepath: string): Promise<Collection> {
     const streams = new Collection()
 
-    const content = await this.storage.read(filepath)
+    const content = await this.storage.load(filepath)
     const parsed: parser.Playlist = parser.parse(content)
 
     parsed.items.forEach((item: parser.PlaylistItem) => {
@@ -40,7 +40,8 @@ export class PlaylistParser {
         line: item.line,
         url: item.url,
         httpReferrer: item.http.referrer,
-        userAgent: item.http['user-agent']
+        userAgent: item.http['user-agent'],
+        timeshift: item.tvg.shift
       })
 
       streams.add(stream)
@@ -52,8 +53,13 @@ export class PlaylistParser {
 
 function parseTitle(title: string): { name: string; label: string; quality: string } {
   const [, label] = title.match(/ \[(.*)\]$/) || [null, '']
-  const [, quality] = title.match(/ \(([0-9]+p)\)/) || [null, '']
-  const name = title.replace(` (${quality})`, '').replace(` [${label}]`, '')
+  title = title.replace(new RegExp(` \\[${escapeRegExp(label)}\\]$`), '')
+  const [, quality] = title.match(/ \(([0-9]+p)\)$/) || [null, '']
+  title = title.replace(new RegExp(` \\(${quality}\\)$`), '')
 
-  return { name, label, quality }
+  return { name: title, label, quality }
+}
+
+function escapeRegExp(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 }

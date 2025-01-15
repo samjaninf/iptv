@@ -1,6 +1,8 @@
+import { Logger, Storage, Collection, Dictionary } from '@freearhey/core'
 import { DATA_DIR, STREAMS_DIR } from '../../constants'
-import { Storage, Logger, Collection, Dictionary, IssueLoader, PlaylistParser } from '../../core'
+import { IssueLoader, PlaylistParser } from '../../core'
 import { Stream, Playlist, Channel, Issue } from '../../models'
+import validUrl from 'valid-url'
 
 let processedIssues = new Collection()
 let streams: Collection
@@ -52,13 +54,20 @@ async function removeStreams(loader: IssueLoader) {
   const issues = await loader.load({ labels: ['streams:remove', 'approved'] })
   issues.forEach((issue: Issue) => {
     const data = issue.data
-    if (data.missing('stream_url')) return
+    if (data.missing('broken_links')) return
 
-    const found: Stream = streams.first((_stream: Stream) => _stream.url === data.get('stream_url'))
-    if (found) {
-      found.removed = true
-      processedIssues.add(issue.number)
-    }
+    const brokenLinks = data.get('broken_links').split(/\r?\n/).filter(Boolean)
+
+    let changed = false
+    brokenLinks.forEach(link => {
+      const found: Stream = streams.first((_stream: Stream) => _stream.url === link.trim())
+      if (found) {
+        found.removed = true
+        changed = true
+      }
+    })
+
+    if (changed) processedIssues.add(issue.number)
   })
 }
 
@@ -89,6 +98,7 @@ async function editStreams(loader: IssueLoader) {
     if (data.has('channel_name')) stream.name = data.get('channel_name')
     if (data.has('label')) stream.label = data.get('label')
     if (data.has('quality')) stream.quality = data.get('quality')
+    if (data.has('timeshift')) stream.timeshift = data.get('timeshift')
     if (data.has('user_agent')) stream.userAgent = data.get('user_agent')
     if (data.has('http_referrer')) stream.httpReferrer = data.get('http_referrer')
     if (data.has('channel_name')) stream.name = data.get('channel_name')
@@ -103,6 +113,7 @@ async function addStreams(loader: IssueLoader) {
     const data = issue.data
     if (data.missing('channel_id') || data.missing('stream_url')) return
     if (streams.includes((_stream: Stream) => _stream.url === data.get('stream_url'))) return
+    if (!validUrl.isUri(data.get('stream_url'))) return
 
     const channel = groupedChannels.get(data.get('channel_id'))
 
@@ -113,6 +124,7 @@ async function addStreams(loader: IssueLoader) {
       url: data.get('stream_url'),
       label: data.get('label'),
       quality: data.get('quality'),
+      timeshift: data.get('timeshift'),
       userAgent: data.get('user_agent'),
       httpReferrer: data.get('http_referrer'),
       filepath: `${channel.country.toLowerCase()}.m3u`,

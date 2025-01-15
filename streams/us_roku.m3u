@@ -7,12 +7,8 @@ https://linear-12.frequency.stream/dist/roku/12/hls/master/playlist.m3u8
 https://linear-46.frequency.stream/dist/roku/46/hls/master/playlist.m3u8
 #EXTINF:-1 tvg-id="AmericasVoice.us",America's Voice (720p)
 https://p1media-americasvoice-1.roku.wurl.com/manifest/playlist.m3u8
-#EXTINF:-1 tvg-id="BabySharkTV.us",Baby Shark TV (1080p)
-https://fc2f8d2d3cec45bb9187e8de15532838.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Roku_BabySharkTV/playlist.m3u8
 #EXTINF:-1 tvg-id="BloodyDisgusting.us",Bloody Disgusting (1080p)
 https://bloodydisgusting-ingest-roku-us.cinedigm.com/playlist.m3u8
-#EXTINF:-1 tvg-id="Buzzr.us",Buzzr (1080p)
-https://buzzr-roku-us.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="CheddarNews.us",Cheddar News (1080p)
 https://cheddar-cheddar-3.roku.wurl.com/manifest/playlist.m3u8
 #EXTINF:-1 tvg-id="CheddarNews.us",Cheddar News (720p)
@@ -37,14 +33,16 @@ https://estrellatv-roku.amagi.tv/playlist.m3u8
 https://fox-foxsoul-roku.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="FTF.us",FTF (720p)
 https://eleven-rebroadcast-samsung.roku.wurl.com/manifest/playlist.m3u8
-#EXTINF:-1 tvg-id="HappyKids.us",HappyKids (1080p)
-https://happykids-roku.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="HiYAH.us",Hi-YAH! (1080p)
 https://linear-59.frequency.stream/dist/roku/59/hls/master/playlist.m3u8
 #EXTINF:-1 tvg-id="Horrify.us",Horrify (1080p)
 https://olympusamagi.pc.cdn.bitgravity.com/Horrify-roku/master.m3u8
 #EXTINF:-1 tvg-id="iFoodTV.us",iFood.TV (1080p)
 https://ft-ifood-roku.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="IHeart80s.us",iHeart 80s (1080p)
+https://iheart-iheart80s-1-us.roku.wurl.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="IHeart90s.us",iHeart 90s (1080p)
+https://iheart-iheart90s-1-us.roku.wurl.tv/playlist.m3u8
 #EXTINF:-1 tvg-id="JuntosTV.us",Juntos (1080p)
 https://olympusamagi.pc.cdn.bitgravity.com/Juntos-roku/master.m3u8
 #EXTINF:-1 tvg-id="MoonbugKids.uk",Moonbug Kids (1080p)
